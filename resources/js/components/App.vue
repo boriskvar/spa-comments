@@ -1,10 +1,19 @@
 <template>
     <div>
-        <h2>{{ message }}</h2>
+      <ul>
+        <li v-for="comment in comments" :key="comment.id">{{ comment.text }}</li>
+      </ul>
     </div>
-</template>
+  </template>
 
-<script setup>
-import { ref } from 'vue';
-const message = ref('Hello, Vue 3!');
-</script>
+  <script>
+  export default {
+    props: {
+      comments: {
+        type: Array,
+        required: true
+      }
+    }
+  };
+  </script>
+

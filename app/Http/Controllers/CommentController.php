@@ -14,7 +14,7 @@ class CommentController extends Controller
      */
     public function index()
     {
-        $comments = Comment::with('replies')->get();
+        $comments = Comment::whereNull('parent_id')->with('replies')->get();
         return response()->json($comments);
     }
 
@@ -79,5 +79,55 @@ class CommentController extends Controller
     {
         $comment->delete();
         return response()->json(null, 204);
+    }
+
+    public function replies(Comment $comment)
+    {
+        $replies = $comment->replies;
+        return response()->json($replies);
+    }
+
+
+    public function createReply(Request $request, Comment $comment)
+    {
+        $validated = $request->validate([
+            'user_name' => 'required|string|max:255',
+            'avatar' => 'nullable|string|max:255',
+            'email' => 'required|email|max:255',
+            'home_page' => 'nullable|url',
+            'captcha' => 'required|string',
+            'text' => 'required|string',
+            'rating' => 'nullable|integer',
+            'quote' => 'nullable|string',
+        ]);
+
+        $reply = $comment->replies()->create($validated);
+
+        return response()->json($reply, 201);
+    }
+
+
+    public function createReplyToReply(Request $request, Comment $comment, Comment $reply)
+    {
+        $validated = $request->validate([
+            'user_name' => 'required|string|max:255',
+            'avatar' => 'nullable|string|max:255',
+            'email' => 'required|email|max:255',
+            'home_page' => 'nullable|url',
+            'captcha' => 'required|string',
+            'text' => 'required|string',
+            'rating' => 'nullable|integer',
+            'quote' => 'nullable|string',
+        ]);
+
+        $replyToReply = $reply->replies()->create($validated);
+
+        return response()->json($replyToReply, 201);
+    }
+
+    public function getRepliesToReply(Comment $comment, Comment $reply)
+    {
+        $repliesToReply = $reply->replies;
+        return response()->json($repliesToReply);
     }
 }
