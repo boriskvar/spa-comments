@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laravel</title>
+    <title>Vite App</title>
     @vite('resources/css/app.css')
 </head>
 <body>
 
-        @yield('content')
-    
-    @vite('resources/js/app.js')
+    @yield('content')
+
+    @vite('resources/js/main.js')
 </body>
 </html>
