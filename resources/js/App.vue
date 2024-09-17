@@ -1,21 +1,20 @@
 <template>
     <div id="app">
-      <h1>Comments</h1>
+      <h2>Дерево комментариев</h2>
       <div class="comments">
-        <Comment v-for="comment in comments" :key="comment.id" v-bind="comment" />
+        <CommentTree v-for="comment in comments" :key="comment.id" v-bind="comment" />
       </div>
     </div>
 </template>
 
 <script>
-// import commentsData from './data/comments.js'; //ИМПОРТИРУЕМ КОММЕНТАРИИ(commentsData) из папки(data) и файла(comments.js)
 
-import Comment from './components/Comment.vue';
+import CommentTree from './components/CommentTree.vue';
 
   export default {
     name: 'App',
     components: {
-      Comment,
+      CommentTree,
     },
     data() {
       return {
