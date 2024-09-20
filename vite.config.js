@@ -10,6 +10,15 @@ export default defineConfig({
         }),
         vue(),
     ],
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://spa-comments', // Используйте базовый URL
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, '/api'), // Убедитесь, что /api передается
+            }
+        }
+    },
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',

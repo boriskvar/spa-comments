@@ -1,6 +1,6 @@
 <template>
     <div v-if="isFormVisible">
-      <form id="commentForm" @submit.prevent="submitComment">
+      <form id="commentForm" @submit.prevent="submitComment" method="post">
         <div>
           <label for="user_name">User Name:</label>
           <input
@@ -52,10 +52,10 @@
         </div>
 
         <div>
-          <label for="fileInput">Attach file (optional):</label>
+          <label for="file_path">Attach file (optional):</label>
           <input
             type="file"
-            id="fileInput"
+            id="file_path"
             @change="handleFileChange"
             accept=".jpg, .jpeg, .png, .gif, .txt"
           />
@@ -63,7 +63,7 @@
 
         <div class="captcha">
           <input
-            v-model="captchaInput"
+            v-model="captcha"
             placeholder="Enter captcha"
             required
           />
@@ -89,61 +89,61 @@
         default: true,
       },
     },
-    setup(props, { emit }) {
+    setup() {
       const user_name = ref("");
-      const avatar = ref("null");
       const email = ref("");
       const text = ref("");
       const home_page = ref("");
-      const captchaInput = ref("");
-      const fileInput = ref(null);
+      const captcha = ref("");
+      const isFormVisible = ref(true);
+      const avatar = ref("");
+      const file_path = ref(null);
 
-      const handleFileChange = (event) => {
-      const file = event.target.files[0];
-      if (event.target.id === 'avatar') {
-        avatar.value = file;
-      } else {
-        fileInput.value = file;
-      }
-    };
+      const submitComment = async () => {
+        // Проверка на наличие запрещенных HTML-тегов
+        const forbiddenTags = /<\/?(script|iframe|object|embed|link|style)[\s>]/i;
+        if (forbiddenTags.test(text.value)) {
+          alert("Запрещенные теги обнаружены в тексте комментария.");
+          return;
+        }
 
-    const submitComment = async () => {
-      const formData = new FormData();
-      formData.append('user_name', user_name.value);
-      formData.append('email', email.value);
-      formData.append('home_page', home_page.value);
-      formData.append('text', text.value);
-      formData.append('captchaInput', captchaInput.value);
-      if (avatar.value) {
-        formData.append('avatar', avatar.value);
-      }
-      if (fileInput.value) {
-        formData.append('fileInput', fileInput.value);
-      }
+        // Проверка на заполнение всех необходимых полей
+        if (user_name.value && email.value && text.value && captcha.value) {
+          const formData = new FormData();
+          formData.append("user_name", user_name.value);
+          formData.append("email", email.value);
+          formData.append("text", text.value);
+          formData.append("captcha", captcha.value);
+          if (home_page.value) formData.append("home_page", home_page.value);
+          if (file_path.value) formData.append("file_path", file_path.value); // Обновлено на 'file_path'
 
-      try {
-          const response = await fetch('https://spa-comments/api/comments', {
-            method: 'POST',
-            body: formData,
-          });
+          try {
+            const response = await fetch("/api/comments", {
+              method: "POST",
+              body: formData,
+            });
+            if (!response.ok) {
+              // Отображение детальной информации об ошибке
+              const errorData = await response.json();
+              throw new Error(
+                `Failed to add comment: ${errorData.message || "Unknown error"}`
+              );
+            }
 
-          if (!response.ok) {
-            throw new Error(`Error saving comment: ${response.status} ${response.statusText}`);
+            const data = await response.json();
+
+            // Очистка формы
+            user_name.value = "";
+            email.value = "";
+            text.value = "";
+            home_page.value = "";
+            captcha.value = "";
+            file_path.value = null;
+          } catch (error) {
+            console.error("Error adding comment:", error);
           }
-
-          const savedComment = await response.json();
-          emit('submitComment', savedComment);
-
-          // Очистка полей формы после успешной отправки
-          user_name.value = "";
-          avatar.value = "";
-          email.value = "";
-          text.value = "";
-          home_page.value = "";
-          captchaInput.value = "";
-          fileInput.value = null;
-        } catch (error) {
-          console.error('Error saving comment:', error);
+        } else {
+          console.error("Please enter all fields and captcha");
         }
       };
 
@@ -153,9 +153,8 @@
         email,
         text,
         home_page,
-        captchaInput,
-        fileInput,
-        handleFileChange,
+        captcha,
+        isFormVisible,
         submitComment,
       };
     },
@@ -164,69 +163,69 @@
 
 
 
-  <style scoped>
-  .comment-tree {
-    margin-left: 2em;
-    border-left: 2px solid #1e90ff;
-    padding-left: 1em;
+<style lang="css" scoped>
+form {
+    background-color: #f9f9f9;
+    border: 1px solid DodgerBlue;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 
-  .comment-item {
-    margin-bottom: 1em;
-  }
-
-  .comment-header {
-    display: flex;
-    align-items: center;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 1em;
-  }
-
-  .author {
+  label {
+    display: block;
     font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: SlateGray;
   }
 
-  .date-time {
-    font-size: 0.85em;
-    color: #888;
-  }
-
-  .reply-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5em 1em;
-    cursor: pointer;
-  }
-
-  .reply-button:hover {
-    background-color: #0056b3;
-  }
-
-  .reply-form {
-    margin-top: 0.5em;
-  }
-
-  .reply-form input {
+  input,
+  textarea {
     width: 100%;
-    padding: 0.5em;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
     border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    font-size: 1rem;
   }
 
-  .reply-form button {
-    background-color: #007bff;
+  input[type="file"] {
+    padding: 0;
+  }
+
+  button {
+    background-color: DodgerBlue;
     color: white;
     border: none;
-    padding: 0.5em 1em;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
     cursor: pointer;
+    transition: background-color 0.3s;
   }
 
-  .reply-form button:hover {
-    background-color: #0056b3;
+  button:hover {
+    background-color: RoyalBlue;
   }
-  </style>
+
+  .captcha input {
+    width: calc(100% - 1rem);
+  }
+
+  .captcha {
+    margin-bottom: 1rem;
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: DodgerBlue;
+    outline: none;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+</style>
+
