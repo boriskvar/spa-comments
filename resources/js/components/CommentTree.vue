@@ -9,7 +9,12 @@
         <div v-html="body" class="comment-body" />
       </div>
       <div v-if="replies.length" class="comment-replies">
-        <Comment v-for="reply in replies" :key="reply.id" v-bind="reply" type="reply" />
+        <Comment
+            v-for="reply in replies"
+            :key="reply.id"
+            v-bind="reply"
+            type="reply"
+        />
       </div>
     </div>
   </template>
@@ -72,18 +77,8 @@
     margin-bottom: 0.75rem;
   }
 
-  .comment-name {
-    margin-right: 30px;
-  }
-
-  .comment-date {
-    color: DimGray;
-    font-size: 0.8rem;
-    margin-right: 30px;
-  }
-
-  .comment-icon {
-    margin-left: auto;
+  svg {
+    fill: SlateGray;
   }
 
   .comment-body {
@@ -113,6 +108,20 @@
 
   .comment-replies:last-child:before {
     height: calc(100% - 1rem);
+  }
+
+  .comment-name {
+    margin-right: 30px;
+  }
+
+  .comment-date {
+    color: DimGray;
+    font-size: 0.8rem;
+    margin-right: 30px;
+  }
+
+  .comment-icon {
+    margin-left: auto;
   }
 
   </style>

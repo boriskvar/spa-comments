@@ -15,14 +15,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('parent_id')->nullable(); // Внешний ключ на родительский комментарий
             $table->string('user_name');
-            $table->string('avatar')->nullable();
             $table->string('email');
             $table->string('home_page')->nullable();
             $table->string('captcha')->nullable();
             $table->text('text');
             $table->timestamps();
-            $table->integer('rating')->default(0); // Поле для рейтинга
+            $table->string('avatar')->nullable();
+            $table->string('file_path')->nullable(); // Поле для пути к файлу
             $table->text('quote')->nullable(); // Поле для цитаты
+            $table->integer('rating')->default(0); // Поле для рейтинга
 
             // Индекс для быстрого поиска по parent_id
             $table->index('parent_id');

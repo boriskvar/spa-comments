@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\ReplyController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,11 +21,8 @@ use App\Http\Controllers\ReplyController;
 });*/
 
 // Основные маршруты для комментариев
-Route::get('/comments', [CommentController::class, 'index']); // Показ всех комментариев и ответов
-Route::post('/comments', [CommentController::class, 'create']); // Создание нового комментария или ответа
-//Route::get('/comments/{commentId}', [CommentController::class, 'show']); // Показ конкретного комментария
-//Route::put('/comments/{commentId}', [CommentController::class, 'update']); // Обновление комментария
-//Route::delete('/comments/{commentId}', [CommentController::class, 'destroy']); // Удаление комментария
+Route::get('/comments', [CommentController::class, 'index']);
+Route::post('/comments', [CommentController::class, 'create']);
 
 Route::get('/comments/{comment}/replies', [CommentController::class, 'replies']);
 Route::post('/comments/{comment}/replies', [CommentController::class, 'createReply']);
