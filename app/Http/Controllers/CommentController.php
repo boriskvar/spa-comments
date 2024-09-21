@@ -125,16 +125,22 @@ class CommentController extends Controller
     {
         $validated = $request->validate([
             'user_name' => 'required|string|max:255',
-            'avatar' => 'nullable|string|max:255',
-            'email' => 'required|email|max:255',
-            'home_page' => 'nullable|url',
-            'captcha' => 'required|string',
+            //'avatar' => 'nullable|string|max:255',
+            //'email' => 'required|email|max:255',
+            //'home_page' => 'nullable|url',
+            //'captcha' => 'required|string',
             'text' => 'required|string',
-            'rating' => 'nullable|integer',
-            'quote' => 'nullable|string',
+            //'rating' => 'nullable|integer',
+            //'quote' => 'nullable|string',
         ]);
 
-        $reply = $comment->replies()->create($validated);
+        //$reply = $comment->replies()->create($validated);
+        $reply = $comment->replies()->create([
+            'user_name' => $validated['user_name'],
+            'text' => $validated['text'], // предполагая, что поле в базе данных называется 'text'
+            'parent_id' => $comment->id, // устанавливаем родительский ID
+            // Другие необходимые поля, такие как user_id, можно добавить по мере необходимости
+        ]);
 
         return response()->json($reply, 201);
     }
