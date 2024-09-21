@@ -72,7 +72,8 @@ class CommentController extends Controller
      * @param \App\Models\Comment $comment
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Comment $comment)
+
+    /*public function update(Request $request, Comment $comment)
     {
         $validated = $request->validate([
             'parent_id' => 'nullable|exists:comments,id',
@@ -100,7 +101,7 @@ class CommentController extends Controller
         $comment->update($validated);
 
         return response()->json($comment);
-    }
+    }*/
 
     /**
      * Удаление существующего комментария.
@@ -120,30 +121,37 @@ class CommentController extends Controller
         return response()->json($replies);
     }
 
-
     public function createReply(Request $request, Comment $comment)
     {
         $validated = $request->validate([
+            //'parent_id' => 'nullable|exists:comments,id',
             'user_name' => 'required|string|max:255',
-            //'avatar' => 'nullable|string|max:255',
-            //'email' => 'required|email|max:255',
-            //'home_page' => 'nullable|url',
-            //'captcha' => 'required|string',
             'text' => 'required|string',
-            //'rating' => 'nullable|integer',
-            //'quote' => 'nullable|string',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
-        //$reply = $comment->replies()->create($validated);
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('public/images/avatars');
+            //$avatarPath = $request->file('avatar')->store('images/avatars', 'public');
+        }
+
         $reply = $comment->replies()->create([
             'user_name' => $validated['user_name'],
-            'text' => $validated['text'], // предполагая, что поле в базе данных называется 'text'
-            'parent_id' => $comment->id, // устанавливаем родительский ID
+            //'avatar' => $validated['avatar'] ?? null,
+            'avatar' => $avatarPath ? str_replace('public/', '', $avatarPath) : null, // Убедитесь, что путь к аватару формируется правильно
+            'text' => $validated['text'],
+            'parent_id' => $comment->id,
             // Другие необходимые поля, такие как user_id, можно добавить по мере необходимости
         ]);
 
-        return response()->json($reply, 201);
+        // Загрузите вложенные ответы
+        $reply->load('replies');
+
+        return response()->json($reply, 201); // Возвращаем только что созданный ответ
     }
+
+
 
 
     public function createReplyToReply(Request $request, Comment $comment, Comment $reply)
@@ -169,4 +177,20 @@ class CommentController extends Controller
         $repliesToReply = $reply->replies;
         return response()->json($repliesToReply);
     }
+
+/*    public function uploadAvatar(Request $request)
+    {
+        $validated = $request->validate([
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif', // Проверка на изображение
+        ]);
+
+    // Сохраняем аватар в public/images/avatars
+    $path = $request->file('avatar')->store('images/avatars', 'public');
+
+     // Возвращаем путь к аватару
+     return response()->json(['path' => asset('storage/' . $path)], 201);
+}*/
+
+
+
 }

@@ -2,6 +2,7 @@
   <div>
     <div class="comment" :class="{ reply: type === 'reply' }">
       <header>
+        <img :src="avatar" alt="Avatar" class="comment-avatar" />
         <h3 class="comment-name">{{ author }}</h3>
         <span class="comment-date">{{ formattedDate }}</span>
         <span v-html="icon" class="comment-icon"></span>
@@ -10,14 +11,21 @@
       <button @click="showReplyInput = !showReplyInput" class="reply-button">
         Reply
       </button>
-      <div v-if="showReplyInput">
+      <div v-if="showReplyInput" class="reply-input">
+        <img :src="avatarPreview || avatar" alt="Avatar" class="reply-avatar" />
+        <input type="file" @change="onFileChange" />
         <textarea v-model="replyName" placeholder="Enter your name..."></textarea>
         <textarea v-model="replyBody" placeholder="Enter your reply..."></textarea>
         <button @click="submitReply">Submit</button>
       </div>
     </div>
     <div v-if="replies.length" class="comment-replies">
-      <Comment v-for="reply in replies" :key="reply.id" v-bind="reply" type="reply" />
+      <Comment
+        v-for="reply in replies"
+        :key="reply.id"
+        v-bind="reply"
+        type="reply"
+      />
     </div>
   </div>
 </template>
@@ -31,49 +39,70 @@ export default {
     timestamp: { type: String, required: true },
     replies: { type: Array, required: true, default: () => [] }, // Добавлено значение по умолчанию
     type: { type: String, required: false, default: "comment" },
-    id: { type: Number, required: true } // Убедитесь, что ID обязательный
+    id: { type: Number, required: true }, // Убедитесь, что ID обязательный
+    avatar: { type: String, required: true }, // Добавлено свойство для аватара
   },
   data() {
     return {
       showReplyInput: false,
-      replyBody: '',
-      replyName: ''
+      replyBody: "",
+      replyName: "",
+      selectedFile: null, // Для хранения выбранного файла
+      avatarPreview: null, // Для предварительного просмотра аватара
     };
   },
   methods: {
+    onFileChange(event) {
+      this.selectedFile = event.target.files[0];
+      if (this.selectedFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.avatarPreview = e.target.result; // Предварительный просмотр
+        };
+        reader.readAsDataURL(this.selectedFile);
+      }
+    },
     async submitReply() {
-        if (!this.replyBody.trim()) {
-        console.warn('Reply cannot be empty.');
+      if (!this.replyBody.trim()) {
+        console.warn("Reply cannot be empty.");
         return;
       }
 
       try {
-        const response = await fetch(`api/comments/${this.id}/replies`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            text: this.replyBody,
-            user_name: this.replyName // добавляем имя пользователя
-          })
+        const formData = new FormData();
+        formData.append("text", this.replyBody);
+        formData.append("user_name", this.replyName);
+
+        if (this.selectedFile) {
+          formData.append("avatar", this.selectedFile); // Добавляем аватар, если загружен
+        }
+
+        const response = await fetch(`/api/comments/${this.id}/replies`, {
+          method: "POST",
+          body: formData, // Используем FormData для отправки формы
         });
+
+        const responseData = await response.text();
+        console.log("Response status:", response.status);
+        console.log("Response data:", responseData);
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('Error response:', errorText);
-          throw new Error('Failed to submit reply');
+          console.error("Error response:", errorText);
+          throw new Error("Failed to submit reply");
         }
 
-        const newReply = await response.json();
+        const newReply = JSON.parse(responseData); // Преобразуем текстовый ответ в JSON
         this.replies.push(newReply);
-        this.replyBody = '';
-        this.replyName = ''; // очищаем поле имени
+        this.replyBody = "";
+        this.replyName = ""; // очищаем поле имени
+        this.selectedFile = null;
+        this.avatarPreview = null;
         this.showReplyInput = false;
       } catch (error) {
-        console.error('Error submitting reply:', error);
+        console.error("Error submitting reply:", error);
       }
-    }
+    },
   },
   computed: {
     formattedDate() {
@@ -95,6 +124,20 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.reply-avatar {
+  width: 30px; /* Установи нужный размер для аватара в ответе */
+  height: 30px;
+  border-radius: 50%; /* Чтобы сделать его круглым */
+  margin-right: 10px; /* Отступ справа */
+}
+
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
 button {
   background-color: DodgerBlue;
   color: white;

@@ -5,7 +5,11 @@
 
       <h2>Дерево комментариев</h2>
       <div class="comments">
-        <CommentTree v-for="comment in comments" :key="comment.id" v-bind="comment" />
+        <CommentTree
+          v-for="comment in comments"
+          :key="comment.id"
+          v-bind="comment"
+        />
       </div>
 
       <h2>Форма для комментариев</h2>
