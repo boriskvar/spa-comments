@@ -48,7 +48,7 @@
 
       const fetchComments = async () => {
         try {
-          const response = await fetch('https://spa-comments/api/comments');
+          const response = await fetch('http://spa-comments/api/comments');
           if (!response.ok) {
             throw new Error(`Error fetching comments: ${response.status} ${response.statusText}`);
           }
@@ -74,6 +74,7 @@
           body: comment.text,
           timestamp: comment.created_at, // Предполагаем, что у вас есть поле created_at
           replies: comment.replies ? transformComments(comment.replies) : [], // Рекурсивно обрабатываем вложенные комментарии, если они есть
+          avatar: comment.avatar ? `/storage/${comment.avatar}` : 'default-avatar.png', // Убедитесь, что путь правильный
         }));
       };
 

@@ -2,7 +2,9 @@
   <div>
     <div class="comment" :class="{ reply: type === 'reply' }">
       <header>
-        <img :src="avatar" alt="Avatar" class="comment-avatar" />
+
+        <img :src="avatarUrl" alt="Avatar" class="comment-avatar" />
+
         <h3 class="comment-name">{{ author }}</h3>
         <span class="comment-date">{{ formattedDate }}</span>
         <span v-html="icon" class="comment-icon"></span>
@@ -12,7 +14,7 @@
         Reply
       </button>
       <div v-if="showReplyInput" class="reply-input">
-        <img :src="avatarPreview || avatar" alt="Avatar" class="reply-avatar" />
+        <img :src="avatarPreview || avatarUrl" alt="Avatar" class="reply-avatar" />
         <input type="file" @change="onFileChange" />
         <textarea v-model="replyName" placeholder="Enter your name..."></textarea>
         <textarea v-model="replyBody" placeholder="Enter your reply..."></textarea>
@@ -49,6 +51,7 @@ export default {
       replyName: "",
       selectedFile: null, // Для хранения выбранного файла
       avatarPreview: null, // Для предварительного просмотра аватара
+
     };
   },
   methods: {
@@ -82,9 +85,9 @@ export default {
           body: formData, // Используем FormData для отправки формы
         });
 
-        const responseData = await response.text();
-        console.log("Response status:", response.status);
-        console.log("Response data:", responseData);
+        //const responseData = await response.text();
+        //console.log("Response status:", response.status);
+        //console.log("Response data:", responseData);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -92,7 +95,7 @@ export default {
           throw new Error("Failed to submit reply");
         }
 
-        const newReply = JSON.parse(responseData); // Преобразуем текстовый ответ в JSON
+        const newReply = await response.json(); // Получаем JSON-ответ
         this.replies.push(newReply);
         this.replyBody = "";
         this.replyName = ""; // очищаем поле имени
@@ -105,6 +108,11 @@ export default {
     },
   },
   computed: {
+    avatarUrl() {
+      // Формируем правильный путь к аватару
+      // Проверяем, существует ли avatar, чтобы избежать ошибок
+      return this.avatar ? `http://spa-comments/${this.avatar}` : 'default-avatar.png';
+    },
     formattedDate() {
       const date = new Date(this.timestamp);
       return (

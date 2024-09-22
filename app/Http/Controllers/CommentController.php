@@ -41,12 +41,12 @@ class CommentController extends Controller
 
         $avatarPath = null;
         if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('public/images/avatars');
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
         }
 
         $filePath = null;
         if ($request->hasFile('file_path')) {
-            $filePath = $request->file('file_path')->store('public/files');
+            $filePath = $request->file('file_path')->store('files', 'public');
         }
 
         $comment = new Comment();
@@ -58,9 +58,14 @@ class CommentController extends Controller
         $comment->captcha = $validated['captcha'];
         $comment->rating = $validated['rating'] ?? null;
         $comment->quote = $validated['quote'] ?? null;
-        $comment->avatar = $avatarPath;
-        $comment->file_path = $filePath;
+        $comment->avatar = $avatarPath ? str_replace('public/', '', $avatarPath) : null; // Убираем 'public/' из пути
+        $comment->file_path = $filePath ? str_replace('public/', '', $filePath) : null; // Убираем 'public/' из пути
         $comment->save();
+
+        // Формируем URL для аватара и файла
+        $comment->avatarUrl = $comment->avatar ? "/storage/{$comment->avatar}" : null;
+        $comment->fileUrl = $comment->file_path ? "/storage/{$comment->file_path}" : null;
+
 
         return response()->json($comment, 201);
     }
@@ -109,11 +114,11 @@ class CommentController extends Controller
      * @param \App\Models\Comment $comment
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Comment $comment)
+    /*public function destroy(Comment $comment)
     {
         $comment->delete();
         return response()->json(null, 204);
-    }
+    }*/
 
     public function replies(Comment $comment)
     {
@@ -124,7 +129,6 @@ class CommentController extends Controller
     public function createReply(Request $request, Comment $comment)
     {
         $validated = $request->validate([
-            //'parent_id' => 'nullable|exists:comments,id',
             'user_name' => 'required|string|max:255',
             'text' => 'required|string',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif',
@@ -132,18 +136,21 @@ class CommentController extends Controller
 
         $avatarPath = null;
         if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('public/images/avatars');
-            //$avatarPath = $request->file('avatar')->store('images/avatars', 'public');
+            // Сохраняем файл в папку public/avatars
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
         }
 
         $reply = $comment->replies()->create([
             'user_name' => $validated['user_name'],
-            //'avatar' => $validated['avatar'] ?? null,
-            'avatar' => $avatarPath ? str_replace('public/', '', $avatarPath) : null, // Убедитесь, что путь к аватару формируется правильно
+            'avatar' => $avatarPath ? str_replace('public/', '', $avatarPath) : null, // В avatar используется str_replace('public/', '', $avatarPath) для удаления 'public/' из пути.
             'text' => $validated['text'],
             'parent_id' => $comment->id,
             // Другие необходимые поля, такие как user_id, можно добавить по мере необходимости
         ]);
+
+        // Формируем URL для аватара
+        $reply->avatarUrl = $reply->avatar ? "/storage/{$reply->avatar}" : null;
+
 
         // Загрузите вложенные ответы
         $reply->load('replies');
@@ -154,7 +161,7 @@ class CommentController extends Controller
 
 
 
-    public function createReplyToReply(Request $request, Comment $comment, Comment $reply)
+/*    public function createReplyToReply(Request $request, Comment $comment, Comment $reply)
     {
         $validated = $request->validate([
             'user_name' => 'required|string|max:255',
@@ -170,13 +177,13 @@ class CommentController extends Controller
         $replyToReply = $reply->replies()->create($validated);
 
         return response()->json($replyToReply, 201);
-    }
+    }*/
 
-    public function getRepliesToReply(Comment $comment, Comment $reply)
+/*    public function getRepliesToReply(Comment $comment, Comment $reply)
     {
         $repliesToReply = $reply->replies;
         return response()->json($repliesToReply);
-    }
+    }*/
 
 /*    public function uploadAvatar(Request $request)
     {
