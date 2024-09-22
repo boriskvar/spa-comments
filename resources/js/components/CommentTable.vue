@@ -105,9 +105,9 @@
   const sortIcon = (key) => {
     return sortKey.value === key
       ? sortOrder.value === 'asc'
-        ? 'fa-sort-up'
-        : 'fa-sort-down'
-      : 'fa-sort';
+        ? 'fas fa-sort-up'
+        : 'fas fa-sort-down'
+      : 'fas fa-sort';
   };
 
   // Форматирование даты
