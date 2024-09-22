@@ -75,6 +75,7 @@
           timestamp: comment.created_at, // Предполагаем, что у вас есть поле created_at
           replies: comment.replies ? transformComments(comment.replies) : [], // Рекурсивно обрабатываем вложенные комментарии, если они есть
           avatar: comment.avatar ? `/storage/${comment.avatar}` : 'default-avatar.png', // Убедитесь, что путь правильный
+        //  avatar:  `/storage/${comment.avatar}`  // Убедитесь, что путь правильный
         }));
       };
 

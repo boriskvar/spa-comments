@@ -85,10 +85,6 @@ export default {
           body: formData, // Используем FormData для отправки формы
         });
 
-        //const responseData = await response.text();
-        //console.log("Response status:", response.status);
-        //console.log("Response data:", responseData);
-
         if (!response.ok) {
           const errorText = await response.text();
           console.error("Error response:", errorText);

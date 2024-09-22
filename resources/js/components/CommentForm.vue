@@ -16,9 +16,10 @@
             <input
               type="file"
               id="avatar"
-              @change="handleFileChange"
+              @change="handleAvatarChange"
               accept="image/*"
             />
+            <img v-if="avatarPreview" :src="avatarPreview" alt="Avatar Preview" class="avatar-preview" />
         </div>
 
         <div>
@@ -97,7 +98,26 @@
       const captcha = ref("");
       const isFormVisible = ref(true);
       const avatar = ref("");
+      const avatarPreview = ref(null); // Для предварительного просмотра аватара
       const file_path = ref(null);
+
+
+      const handleAvatarChange = (event) => {
+      const file = event.target.files[0];
+      avatar.value = file; // Сохраняем выбранный файл
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          avatarPreview.value = e.target.result; // Отображаем предварительный просмотр
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const handleFileChange = (event) => {
+      file_path.value = event.target.files[0];
+    };
+
 
       const submitComment = async () => {
         // Проверка на наличие запрещенных HTML-тегов
@@ -115,6 +135,7 @@
           formData.append("text", text.value);
           formData.append("captcha", captcha.value);
           if (home_page.value) formData.append("home_page", home_page.value);
+          if (avatar.value) formData.append("avatar", avatar.value); // Добавляем аватар
           if (file_path.value) formData.append("file_path", file_path.value); // Обновлено на 'file_path'
 
           try {
@@ -138,6 +159,8 @@
             text.value = "";
             home_page.value = "";
             captcha.value = "";
+            avatar.value = "";
+            avatarPreview.value = null; // Очищаем превью
             file_path.value = null;
           } catch (error) {
             console.error("Error adding comment:", error);
@@ -155,6 +178,8 @@
         home_page,
         captcha,
         isFormVisible,
+        handleAvatarChange,
+        handleFileChange,
         submitComment,
       };
     },
@@ -164,6 +189,12 @@
 
 
 <style lang="css" scoped>
+.avatar-preview {
+    max-width: 100px;
+    max-height: 100px;
+    margin-top: 10px;
+  }
+
 form {
     background-color: #f9f9f9;
     border: 1px solid DodgerBlue;
