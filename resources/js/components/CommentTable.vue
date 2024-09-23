@@ -39,7 +39,7 @@
 
   <script setup>
   import { ref, computed, onMounted } from 'vue';
-  //import Pagination from './Pagination.vue';
+  import Pagination from './Pagination.vue';
 
   const API_URL = 'https://spa-comments/api/comments'; // URL API
 
