@@ -178,6 +178,7 @@
         home_page,
         captcha,
         isFormVisible,
+        avatarPreview, // Добавлено для возвращения
         handleAvatarChange,
         handleFileChange,
         submitComment,
