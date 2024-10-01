@@ -2,7 +2,6 @@
   <div>
     <div class="comment" :class="{ reply: type === 'reply' }">
       <header>
-
         <img :src="avatarUrl" alt="Avatar" class="comment-avatar" />
 
         <h3 class="comment-name">{{ author }}</h3>

@@ -70,55 +70,8 @@ class CommentController extends Controller
         return response()->json($comment, 201);
     }
 
-    /**
-     * Обновление существующего комментария.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Comment $comment
-     * @return \Illuminate\Http\JsonResponse
-     */
 
-    /*public function update(Request $request, Comment $comment)
-    {
-        $validated = $request->validate([
-            'parent_id' => 'nullable|exists:comments,id',
-            'user_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'text' => 'required|string',
-            'home_page' => 'nullable|url',
-            'captcha' => 'required|string',
-            'rating' => 'nullable|integer',
-            'quote' => 'nullable|string',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'file_path' => 'nullable|file|mimes:jpg,jpeg,png,gif,txt',
-        ]);
 
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('public/images/avatars');
-            $comment->avatar = $avatarPath;
-        }
-
-        if ($request->hasFile('file_path')) {
-            $filePath = $request->file('file_path')->store('public/files');
-            $comment->file_path = $filePath;
-        }
-
-        $comment->update($validated);
-
-        return response()->json($comment);
-    }*/
-
-    /**
-     * Удаление существующего комментария.
-     *
-     * @param \App\Models\Comment $comment
-     * @return \Illuminate\Http\JsonResponse
-     */
-    /*public function destroy(Comment $comment)
-    {
-        $comment->delete();
-        return response()->json(null, 204);
-    }*/
 
     public function replies(Comment $comment)
     {
@@ -157,47 +110,5 @@ class CommentController extends Controller
 
         return response()->json($reply, 201); // Возвращаем только что созданный ответ
     }
-
-
-
-
-/*    public function createReplyToReply(Request $request, Comment $comment, Comment $reply)
-    {
-        $validated = $request->validate([
-            'user_name' => 'required|string|max:255',
-            'avatar' => 'nullable|string|max:255',
-            'email' => 'required|email|max:255',
-            'home_page' => 'nullable|url',
-            'captcha' => 'required|string',
-            'text' => 'required|string',
-            'rating' => 'nullable|integer',
-            'quote' => 'nullable|string',
-        ]);
-
-        $replyToReply = $reply->replies()->create($validated);
-
-        return response()->json($replyToReply, 201);
-    }*/
-
-/*    public function getRepliesToReply(Comment $comment, Comment $reply)
-    {
-        $repliesToReply = $reply->replies;
-        return response()->json($repliesToReply);
-    }*/
-
-/*    public function uploadAvatar(Request $request)
-    {
-        $validated = $request->validate([
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif', // Проверка на изображение
-        ]);
-
-    // Сохраняем аватар в public/images/avatars
-    $path = $request->file('avatar')->store('images/avatars', 'public');
-
-     // Возвращаем путь к аватару
-     return response()->json(['path' => asset('storage/' . $path)], 201);
-}*/
-
-
 
 }

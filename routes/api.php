@@ -27,7 +27,3 @@ Route::post('/comments', [CommentController::class, 'create']);
 Route::get('/comments/{comment}/replies', [CommentController::class, 'replies']);
 Route::post('/comments/{comment}/replies', [CommentController::class, 'createReply']);
 
-//Route::post('/upload-avatar', [CommentController::class, 'uploadAvatar']);
-
-Route::get('/comments/{comment}/replies/{reply}/replies', [CommentController::class, 'getRepliesToReply']);
-Route::post('/comments/{comment}/replies/{reply}/replies', [CommentController::class, 'createReplyToReply']);
